@@ -38,8 +38,9 @@ class Music(commands.Cog):
             query_params = parse_qs(url.query)
             v = query_params.get("v", [None])[0]
             if v is not None:
-                запрос = f"https://www.youtube.com/watch?v={v}"
-
+                url = f"https://www.youtube.com/watch?v={v}"
+        else:
+            url = запрос
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,
