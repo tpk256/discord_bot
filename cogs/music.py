@@ -27,7 +27,7 @@ class Music(commands.Cog):
         ctx: commands.Context = await commands.Context.from_interaction(interaction)
 
         if ctx.author.voice is None:
-            await interaction.response.send_message("Вам нужно зайти в голосовой канал!"); return
+            await interaction.channel.send("Вам нужно зайти в голосовой канал!"); return
         elif ctx.voice_client is None:
             await ctx.author.voice.channel.connect()
         elif ctx.voice_client.channel != ctx.author.voice.channel:
@@ -55,7 +55,7 @@ class Music(commands.Cog):
         vc = ctx.voice_client
         print(vc)
         if vc.is_playing():
-            await interaction.response.send_message("❌ Уже играет другая музыка!")
+            await interaction.channel.send("❌ Уже играет другая музыка!")
             return
         print(vc.is_playing())
         try:
@@ -63,10 +63,10 @@ class Music(commands.Cog):
             print(source)
         except Exception as exp:
             print(exp, "ERROR")
-            await interaction.response.send_message(f"Error {exp}")
+            await interaction.channel.send(f"Error {exp}")
         else:
             vc.play(source)
-            await interaction.response.send_message(f"🎶 Сейчас играет: **{info['title']}**")
+            await interaction.channel.send(f"🎶 Сейчас играет: **{info['title']}**")
 
 
 
