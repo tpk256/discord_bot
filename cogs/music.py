@@ -41,6 +41,7 @@ class Music(commands.Cog):
                 url = f"https://www.youtube.com/watch?v={v}"
         else:
             url = запрос
+        print(url)
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,
