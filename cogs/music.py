@@ -55,15 +55,16 @@ class Music(commands.Cog):
         vc = ctx.voice_client
 
         if vc.is_playing():
-            await ctx.send("❌ Уже играет другая музыка!")
+            await interaction.response.send_message("❌ Уже играет другая музыка!")
             return
 
         try:
             source = discord.FFmpegPCMAudio(audio_url, **FFMPEG_OPTIONS)
         except Exception as exp:
-            await ctx.send(f"Error {exp}")
+            print(exp, "ERROR")
+            await interaction.response.send_message(f"Error {exp}")
         else:
-            await ctx.send(f"🎶 Сейчас играет: **{info['title']}**")
+            await interaction.response.send_message(f"🎶 Сейчас играет: **{info['title']}**")
             vc.play(source)
 
 
