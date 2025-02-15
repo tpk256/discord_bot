@@ -53,11 +53,11 @@ class Music(commands.Cog):
             info = ydl.extract_info(url, download=False)
             audio_url = info["url"]
         vc = ctx.voice_client
-
+        print(vc)
         if vc.is_playing():
             await interaction.response.send_message("❌ Уже играет другая музыка!")
             return
-
+        print(vc.is_playing())
         try:
             source = discord.FFmpegPCMAudio(audio_url, **FFMPEG_OPTIONS)
         except Exception as exp:
