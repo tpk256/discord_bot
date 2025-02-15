@@ -1,5 +1,7 @@
 import subprocess
 import asyncio
+from urllib.parse import urlparse, parse_qs
+
 
 import discord
 from discord.ext import commands
@@ -18,7 +20,6 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
-
     @app_commands.command(name="play", description="Поиск музыки по url")
     @app_commands.describe(запрос="url")
     async def play(self, interaction: discord.Interaction, запрос: str):
@@ -32,8 +33,13 @@ class Music(commands.Cog):
         elif ctx.voice_client.channel != ctx.author.voice.channel:
             await ctx.voice_client.move_to(ctx.author.voice.channel)
 
+        url = urlparse(запрос)
+        if url.hostname == "www.youtube.com":
+            query_params = parse_qs(url.query)
+            v = query_params.get("v", [None])[0]
+            if v is not None:
+                запрос = f"https://www.youtube.com/watch?v={v}"
 
-        url = запрос
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,
@@ -45,13 +51,17 @@ class Music(commands.Cog):
             info = ydl.extract_info(url, download=False)
             audio_url = info["url"]
         vc = ctx.voice_client
+
+        if vc.is_playing():
+            await ctx.send("❌ Уже играет другая музыка!")
+            return
+
         try:
             source = discord.FFmpegPCMAudio(audio_url, **FFMPEG_OPTIONS)
-
         except Exception as exp:
-            print(exp)
-        if not vc.is_playing():
-            vc.play(source)
-            await ctx.send(f"🎶 Сейчас играет: **{info['title']}**")
+            await ctx.send(f"Error {exp}")
         else:
-            await ctx.send("❌ Уже играет другая музыка!")
+            await ctx.send(f"🎶 Сейчас играет: **{info['title']}**")
+            vc.play(source)
+
+
