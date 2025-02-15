@@ -18,17 +18,6 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
-    @app_commands.command(name="skip", description="Пропустить текущую песню")
-    async def skip(self, interaction: discord.Interaction):
-        print(12312321)
-        ctx: commands.Context = await commands.Context.from_interaction(interaction)
-        print(1)
-        if ctx.voice_client and ctx.voice_client.is_playing():
-            interaction.guild.voice_client.stop()  # Останавливает воспроизведение
-            await interaction.response.send_message("⏩ Песня пропущена, и я отключился от канала!")
-            await ctx.voice_client.disconnect()  # Отключаем бота
-        else:
-            await interaction.response.send_message("❌ Сейчас нет песни для пропуска!")
 
     @app_commands.command(name="play", description="Поиск музыки по url")
     @app_commands.describe(запрос="url")
