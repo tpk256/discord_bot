@@ -60,11 +60,13 @@ class Music(commands.Cog):
         print(vc.is_playing())
         try:
             source = discord.FFmpegPCMAudio(audio_url, **FFMPEG_OPTIONS)
+            print(source)
         except Exception as exp:
             print(exp, "ERROR")
             await interaction.response.send_message(f"Error {exp}")
         else:
-            await interaction.response.send_message(f"🎶 Сейчас играет: **{info['title']}**")
             vc.play(source)
+            await interaction.response.send_message(f"🎶 Сейчас играет: **{info['title']}**")
+
 
 
