@@ -23,10 +23,10 @@ class Music(commands.Cog):
         print(12312321)
         ctx: commands.Context = await commands.Context.from_interaction(interaction)
         print(1)
-        if interaction.guild.voice_client and interaction.guild.voice_client.is_playing():
+        if ctx.voice_client and ctx.voice_client.is_playing():
             interaction.guild.voice_client.stop()  # Останавливает воспроизведение
             await interaction.response.send_message("⏩ Песня пропущена, и я отключился от канала!")
-            await interaction.guild.voice_client.disconnect()  # Отключаем бота
+            await ctx.voice_client.disconnect()  # Отключаем бота
         else:
             await interaction.response.send_message("❌ Сейчас нет песни для пропуска!")
 
@@ -55,17 +55,12 @@ class Music(commands.Cog):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             audio_url = info["url"]
-        print(audio_url)
-        print(12312312312312)
         vc = ctx.voice_client
-        print(vc)
         try:
             source = discord.FFmpegPCMAudio(audio_url, **FFMPEG_OPTIONS)
-            # source = discord.FFmpegPCMAudio(audio_url, executable="C:/ffmpeg/bin/ffmpeg.exe",  **FFMPEG_OPTIONS)
+
         except Exception as exp:
             print(exp)
-        print(source)
-        print(vc, source)
         if not vc.is_playing():
             vc.play(source)
             await ctx.send(f"🎶 Сейчас играет: **{info['title']}**")
