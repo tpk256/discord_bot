@@ -46,8 +46,17 @@ class Music(commands.Cog):
         elif user.voice.channel != voice_client.channel:
             await voice_client.move_to(user.voice.channel)
 
+        if voice_client and voice_client.is_playing():
+            await interaction.response.send_message("❌ Уже играет другая музыка!")
+            return
+
         await interaction.response.send_message("Начинаю искать музыку")
         url = urlparse(запрос)
+
+        if url.scheme not in ("http", "https"):
+            await interaction.response.send_message("Введен некоректный url")
+            return
+
         if url.hostname == "www.youtube.com":
             query_params = parse_qs(url.query)
             v = query_params.get("v", [None])[0]
@@ -56,6 +65,7 @@ class Music(commands.Cog):
         else:
             url = запрос
         print(url)
+        await interaction.response.send_message("Начинаю искать музыку")
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,
