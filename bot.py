@@ -8,19 +8,7 @@ from cogs import music, start
 intents = discord.Intents.all()
 intents.message_content = True
 
-bot = commands.Bot("/", intents=intents,)
-
-
-@bot.command(name="skip", description="Пропустить текущую песню")
-async def skip(ctx: commands.Context):
-
-    voice_client = ctx.voice_client
-    if voice_client and voice_client.is_playing():
-        voice_client.stop()  # Останавливаем воспроизведение
-        await ctx.send("⏩ Песня пропущена!")
-        await voice_client.disconnect()
-    else:
-        await ctx.send("❌ Сейчас нет песни для пропуска!")
+bot = commands.Bot("!", intents=intents,)
 
 
 @bot.event

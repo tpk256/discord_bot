@@ -20,19 +20,32 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
+    @app_commands.command(name="skip", description="Пропустить текущую песню")
+    async def skip(self, interaction: discord.Interaction):
+
+        voice_client = interaction.guild.voice_client
+        if voice_client and voice_client.is_playing():
+            voice_client.stop()  # Останавливаем воспроизведение
+            await voice_client.disconnect()
+            await interaction.response.send_message("⏩ Песня пропущена!")
+            return
+
+        await interaction.response.send_message("❌ Сейчас нет песни для пропуска!")
+
     @app_commands.command(name="play", description="Поиск музыки по url")
     @app_commands.describe(запрос="url")
     async def play(self, interaction: discord.Interaction, запрос: str):
+        user = interaction.user
+        voice_client = interaction.guild.voice_client
+        if user.voice is None:
+            await interaction.response.send_message("Вам нужно зайти в голосовой канал!")
+            return
+        elif voice_client is None:
+            await user.voice.channel.connect()
+        elif user.voice.channel != voice_client.channel:
+            await voice_client.move_to(user.voice.channel)
 
-        ctx: commands.Context = await commands.Context.from_interaction(interaction)
-
-        if ctx.author.voice is None:
-            await interaction.channel.send("Вам нужно зайти в голосовой канал!"); return
-        elif ctx.voice_client is None:
-            await ctx.author.voice.channel.connect()
-        elif ctx.voice_client.channel != ctx.author.voice.channel:
-            await ctx.voice_client.move_to(ctx.author.voice.channel)
-
+        await interaction.response.send_message("Начинаю искать музыку")
         url = urlparse(запрос)
         if url.hostname == "www.youtube.com":
             query_params = parse_qs(url.query)
@@ -52,21 +65,22 @@ class Music(commands.Cog):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             audio_url = info["url"]
-        vc = ctx.voice_client
-        print(vc)
-        if vc.is_playing():
-            await interaction.channel.send("❌ Уже играет другая музыка!")
+
+        print(voice_client)
+        if voice_client.is_playing():
+            await interaction.followup.send("❌ Уже играет другая музыка!")
             return
-        print(vc.is_playing())
+        print(voice_client.is_playing())
         try:
             source = discord.FFmpegPCMAudio(audio_url, **FFMPEG_OPTIONS)
             print(source)
         except Exception as exp:
             print(exp, "ERROR")
-            await interaction.channel.send(f"Error {exp}")
+            await interaction.followup.send(f"Error {exp}")
         else:
-            vc.play(source)
-            await interaction.channel.send(f"🎶 Сейчас играет: **{info['title']}**")
+            await interaction.followup.send(f"🎶 Сейчас играет: **{info['title']}**")
+            voice_client.play(source)
+
 
 
 
