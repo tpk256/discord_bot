@@ -37,6 +37,7 @@ class Music(commands.Cog):
     async def play(self, interaction: discord.Interaction, запрос: str):
         user = interaction.user
         voice_client = interaction.guild.voice_client
+
         if user.voice is None:
             await interaction.response.send_message("Вам нужно зайти в голосовой канал!")
             return
@@ -67,6 +68,7 @@ class Music(commands.Cog):
             audio_url = info["url"]
 
         print(voice_client)
+        voice_client = interaction.guild.voice_client
         if voice_client.is_playing():
             await interaction.followup.send("❌ Уже играет другая музыка!")
             return
