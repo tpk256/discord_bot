@@ -50,11 +50,10 @@ class Music(commands.Cog):
             await interaction.response.send_message("❌ Уже играет другая музыка!")
             return
 
-        await interaction.response.send_message("Начинаю искать музыку")
         url = urlparse(запрос)
 
         if url.scheme not in ("http", "https"):
-            await interaction.response.send_message("Введен некоректный url")
+            await interaction.followup.send_message("Введен некоректный url")
             return
 
         if url.hostname == "www.youtube.com":
