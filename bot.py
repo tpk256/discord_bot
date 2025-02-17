@@ -1,4 +1,5 @@
 import asyncio
+import random
 
 import discord
 from discord.ext import commands
@@ -14,7 +15,6 @@ bot = commands.Bot("!", intents=intents,)
 @bot.event
 async def on_ready():
     print(f"Бот {bot.user} запущен!")
-    bot.tree.clear_commands()
     try:
         synced = await bot.tree.sync()
         print(f"Синхронизировано {len(synced)} команд")
