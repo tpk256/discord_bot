@@ -7,7 +7,7 @@ def create_tables():
 
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS Playlist (
-        id  INTEGER PRIMARY KEY
+        id  INTEGER PRIMARY KEY,
         channel_id INTEGER,
         name_playlist TEXT NOT NULL,
         playlist_id INTEGER UNIQUE NOT NULL

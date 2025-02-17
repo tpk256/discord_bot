@@ -53,11 +53,14 @@ class Music(commands.Cog):
 
     @app_commands.command(name="play_playlist")
     async def play_playlist(self, interaction: discord.Interaction, playlist_name: str):
-
-        for _, name_play, play_id in db.get_playlists(interaction.guild.id):
-            if playlist_name == name_play:
-                self.playlist = db.get_songs_by_playlist(play_id)
-                break
+        try:
+            for _, name_play, play_id in db.get_playlists(interaction.guild.id):
+                if playlist_name == name_play:
+                    self.playlist = db.get_songs_by_playlist(play_id)
+                    break
+        except Exception as ex:
+            print(ex)
+        print("ok")
         print(self.playlist)
         if self.playlist is None:
             await interaction.response.send_message("Такого плейлиста не существует")
