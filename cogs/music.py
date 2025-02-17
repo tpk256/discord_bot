@@ -54,7 +54,7 @@ class Music(commands.Cog):
     @app_commands.command(name="play_playlist")
     async def play_playlist(self, interaction: discord.Interaction, playlist_name: str):
         try:
-            for _, name_play, play_id in db.get_playlists(interaction.guild.id):
+            for _, _, name_play, play_id in db.get_playlists(interaction.guild.id):
                 if playlist_name == name_play:
                     self.playlist = db.get_songs_by_playlist(play_id)
                     break
