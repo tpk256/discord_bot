@@ -59,26 +59,22 @@ class Music(commands.Cog):
 
     @app_commands.command(name="play_playlist")
     async def play_playlist(self, interaction: discord.Interaction, playlist_name: str):
-        try:
+        __is_cache = False
 
-            for _, _, name_play, play_id in db.get_playlists(interaction.guild.id):
-                if playlist_name == name_play:
-                    __songs_cached = self.__cache.get(playlist_name)
-                    print(self.__cache)
-                    if __songs_cached is not None:
-                        print("Кеш не нлуь")
-                        if __songs_cached.get("expired") > time.time():
-                            self.playlist = self._gen_songs(__songs_cached.get("songs"))
-                            print("Вот кеш")
-                            print("Вот кеш")
-                            await self.play_next()
-                            print("Вот кеш")
-                            return
+        for _, _, name_play, play_id in db.get_playlists(interaction.guild.id):
+            if playlist_name == name_play:
+                __songs_cached = self.__cache.get(playlist_name)
+                print(self.__cache)
+                if __songs_cached is not None:
+                    print("Кеш не нлуь")
+                    if __songs_cached.get("expired") > time.time():
+                        self.playlist = self._gen_songs(__songs_cached["songs"])
+                        __is_cache = True
+                        break
 
-                    self.playlist = db.get_songs_by_playlist(play_id)
-                    break
-        except Exception as ex:
-            print(ex)
+                self.playlist = db.get_songs_by_playlist(play_id)
+                break
+
         print("ok")
         print(self.playlist)
         if self.playlist is None:
@@ -101,6 +97,10 @@ class Music(commands.Cog):
             return
 
         self.voice_client = interaction.guild.voice_client
+
+        if __is_cache:
+            await self.play_next()
+            return
 
         __songs = []
         for _, url, _ in self.playlist:
