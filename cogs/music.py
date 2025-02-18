@@ -60,14 +60,17 @@ class Music(commands.Cog):
     @app_commands.command(name="play_playlist")
     async def play_playlist(self, interaction: discord.Interaction, playlist_name: str):
         try:
-            print(self.__cache)
+            # print(self.__cache)
             for _, _, name_play, play_id in db.get_playlists(interaction.guild.id):
                 if playlist_name == name_play:
                     __songs_cached = self.__cache.get(playlist_name)
                     if __songs_cached is not None:
                         if __songs_cached.get("expired") < time.time():
                             self.playlist = self._gen_songs(__songs_cached.get("songs"))
-                            print(self.__cache)
+                            print("Вот кеш")
+                            print("Вот кеш")
+                            await self.play_next()
+                            print("Вот кеш")
                             return
 
                     self.playlist = db.get_songs_by_playlist(play_id)
@@ -102,12 +105,12 @@ class Music(commands.Cog):
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
             __songs.append(info["url"])
-        print(self.__cache, "before")
+        # print(self.__cache, "before")
         self.__cache[playlist_name] = {
             "expired": time.time() + 3600,
             "songs": __songs
         }
-        print(self.__cache, "after")
+        # print(self.__cache, "after")
         self.playlist = self._gen_songs(__songs)
         await self.play_next()
 
