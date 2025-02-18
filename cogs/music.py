@@ -67,7 +67,7 @@ class Music(commands.Cog):
                     print(self.__cache)
                     if __songs_cached is not None:
                         print("Кеш не нлуь")
-                        if __songs_cached.get("expired") < time.time():
+                        if __songs_cached.get("expired") > time.time():
                             self.playlist = self._gen_songs(__songs_cached.get("songs"))
                             print("Вот кеш")
                             print("Вот кеш")
