@@ -60,11 +60,13 @@ class Music(commands.Cog):
     @app_commands.command(name="play_playlist")
     async def play_playlist(self, interaction: discord.Interaction, playlist_name: str):
         try:
-            # print(self.__cache)
+
             for _, _, name_play, play_id in db.get_playlists(interaction.guild.id):
                 if playlist_name == name_play:
                     __songs_cached = self.__cache.get(playlist_name)
+                    print(self.__cache)
                     if __songs_cached is not None:
+                        print("Кеш не нлуь")
                         if __songs_cached.get("expired") < time.time():
                             self.playlist = self._gen_songs(__songs_cached.get("songs"))
                             print("Вот кеш")
