@@ -67,8 +67,7 @@ def get_songs_by_playlist(playlist_id):
     cursor.execute("SELECT * FROM Song WHERE ref_playlist = ?", (playlist_id,))
     songs = cursor.fetchall()
     conn.close()
-    for song in songs:
-        yield song
+    return songs
 
 
 if __name__ == "__main__":

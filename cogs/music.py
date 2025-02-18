@@ -1,6 +1,7 @@
 import subprocess
 import asyncio
 import random
+import time
 from urllib.parse import urlparse, parse_qs
 
 
@@ -33,10 +34,11 @@ class Music(commands.Cog):
 
         self.voice_client = None
         self.playlist = None
+        self.__cache = {}
 
     async def play_next(self):
         try:
-            song_url = next(self.playlist)[-2]
+            song_url = next(self.playlist)
             print(song_url)
         except StopIteration:
             self.playlist = None
@@ -51,11 +53,23 @@ class Music(commands.Cog):
             except Exception as e:
                 print(e)
 
+    def _gen_songs(self, songs):
+        for song in songs:
+            yield song
+
     @app_commands.command(name="play_playlist")
     async def play_playlist(self, interaction: discord.Interaction, playlist_name: str):
         try:
+            print(self.__cache)
             for _, _, name_play, play_id in db.get_playlists(interaction.guild.id):
                 if playlist_name == name_play:
+                    __songs_cached = self.__cache.get(playlist_name)
+                    if __songs_cached is not None:
+                        if __songs_cached.get("expired") < time.time():
+                            self.playlist = self._gen_songs(__songs_cached.get("songs"))
+                            print(self.__cache)
+                            return
+
                     self.playlist = db.get_songs_by_playlist(play_id)
                     break
         except Exception as ex:
@@ -83,19 +97,26 @@ class Music(commands.Cog):
 
         self.voice_client = interaction.guild.voice_client
 
+        __songs = []
+        for _, url, _ in self.playlist:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+            __songs.append(info["url"])
+        print(self.__cache, "before")
+        self.__cache[playlist_name] = {
+            "expired": time.time() + 3600,
+            "songs": __songs
+        }
+        print(self.__cache, "after")
+        self.playlist = self._gen_songs(__songs)
         await self.play_next()
 
     @app_commands.command(name="create_playlist")
     async def create_playlist(self, interaction: discord.Interaction, name_playlist: str, *, songs_url: str):
         songs = []
-        print(name_playlist)
-        print(songs_url.split())
         await interaction.response.send_message("Создаю playlist")
-        for url in songs_url.split():
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-            songs.append(info["url"])
-        print(songs)
+        songs = songs_url.split()
+        #
         try:
             if not songs:
                 await interaction.followup.send("Введены некоректные urls")
@@ -121,6 +142,7 @@ class Music(commands.Cog):
         if voice_client and voice_client.is_playing():
             voice_client.stop()  # Останавливаем воспроизведение
             if self.playlist:
+                voice_client.stop()
                 await self.play_next()
                 await interaction.response.send_message("⏩ Песня в плейлисте пропущена!")
             else:
